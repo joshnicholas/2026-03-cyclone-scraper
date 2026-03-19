@@ -2,8 +2,11 @@ name: Run Map Scraper
 
 on:
   schedule:
-    - cron: "0 * * * *"  # every hour
-  workflow_dispatch:     # allows manual trigger
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   run-script:
@@ -12,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,3 +30,11 @@ jobs:
 
       - name: Run script
         run: python map_scraper.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add -A
+          git commit -m "Update scraped data" || echo "No changes to commit"
+          git push
