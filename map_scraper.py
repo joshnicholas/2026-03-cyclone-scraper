@@ -9,49 +9,10 @@ import xml.etree.ElementTree as ET
 import os
 import pathlib
 import json
-import boto3
+
 import ast
 
-from sudulunu.helpers import pp, dumper
-
 # %%
-def syncData(jsonObject, path, filename):
-
-    AWS_KEY = os.environ['AWS_ACCESS_KEY_ID']
-    AWS_SECRET = os.environ['AWS_SECRET_ACCESS_KEY']
-
-    if 'AWS_SESSION_TOKEN' in os.environ:
-        AWS_SESSION = os.environ['AWS_SESSION_TOKEN']
-
-    print("Connecting to S3")
-    bucket = 'gdn-cdn'
-
-    if 'AWS_SESSION_TOKEN' in os.environ:
-        session = boto3.Session(
-            aws_access_key_id=AWS_KEY,
-            aws_secret_access_key=AWS_SECRET,
-            aws_session_token=AWS_SESSION
-        )
-    else:
-        session = boto3.Session(
-            aws_access_key_id=AWS_KEY,
-            aws_secret_access_key=AWS_SECRET,
-        )
-
-    s3 = session.resource('s3')
-
-    key = "{path}/{filename}".format(path=path, filename=filename)
-    obj = s3.Object(bucket, key)
-    obj.put(
-        Body=jsonObject,
-        CacheControl="max-age=30",
-        ACL='public-read',
-        ContentType="application/json"
-    )
-
-    print("JSON is updated")
-    print("data", "https://interactive.guim.co.uk/{path}/{filename}".format(path=path, filename=filename))
-
 
 # %%
 today = datetime.datetime.now()
@@ -180,14 +141,7 @@ wanted['historic']= ast.literal_eval(old)
 
 # %%
 
-print(json.dumps(wanted, indent=2))
+# print(json.dumps(wanted, indent=2))
 
 with open(f'input/map_scrape/{scrape_date_stemmo}.json', 'w') as f:
     json.dump(wanted, f, indent=4)
-
-# %%
-print(type(wanted))
-
-# %%
-jsony = json.dumps(wanted)
-syncData(jsony, "26/03/19-oz-narelle-cyclone", "cyclone-warning-tracker-map.json")
