@@ -83,6 +83,9 @@ wanted["forecast_points"] = [
     {"plus_hours": int(hour), **data}
     for hour, data in sorted(forecast_points.items(), key=lambda x: int(x[0]))
 ]
+print(wanted['forecast_points'])
+wanted['forecast_points'] = [x for x in wanted['forecast_points'] if x['latitude'] != "XXX"]
+
 
 for point in wanted["forecast_points"]:
     if "latitude" in point and point["latitude"]:
